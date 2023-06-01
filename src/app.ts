@@ -1,4 +1,4 @@
-import {Controller, Module, Get} from '@nestjs/common';
+import { Controller, Module, Get } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 @Controller()
@@ -12,7 +12,7 @@ class AppController {
 @Module({
     controllers: [AppController]
 })
-class AppModule {}
+class AppModule { }
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
