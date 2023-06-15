@@ -7,9 +7,8 @@ export class MessagesController {
 
     messagesService: MessagesService;
 
-    constructor() {
-        // DONT DO THIS IN REAL APP. Use dependency injection instead.
-        this.messagesService = new MessagesService();
+    constructor(messagesService: MessagesService) {
+        this.messagesService = messagesService;
     }
 
     @Get()
