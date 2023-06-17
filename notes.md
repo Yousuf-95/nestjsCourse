@@ -40,3 +40,27 @@ export class MessagesService {
     }
 }
 ```
+
+> Best way to write above code
+```TS
+interface Repository {
+  findOne(id: string);
+  findAll();
+  create(content: string);
+}
+export class MessagesService {
+  messagesRepo: Repository;
+  constructor(repo: Repository) {
+    this.messagesRepo = repo;
+  }
+}
+```
+![Why the 'Good' case is good](notesResources/Section5_4.png)
+
+Why the last case is actually good...
+<br>
+In the 'better' way to write code, we pass the 'MessagesRepository' itself as the dependency when initializing the class, but in case of 'best' way of writing the code, we just want the repository to have to conform to a specific interface. In this way, we can migrate to a different database if we wanted to, just by plugging in the repository of the new database that conforms to the interface. We can also write different code for the repository for testing and production environments.
+
+### References:
+* https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
+* https://medium.com/@kaushiksamanta23/nest-js-tutorial-series-part-3-providers-services-dependency-injection-a093f647ce2e
