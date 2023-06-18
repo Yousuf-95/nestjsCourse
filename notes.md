@@ -16,7 +16,10 @@
 
 <hr></hr>
 
-## Inversion of Control Principle:
+## Inversion of Control principle and Dependency Injection (DI) Pattern:
+The Inversion-of-Control (IoC) pattern, is about providing any kind of callback, which "implements" and/or controls reaction, instead of acting ourselves directly (in other words, inversion and/or redirecting control to the external handler/controller).<br>
+Dependency injection is an inversion of control (IoC) technique wherein you delegate instantiation of dependencies to the IoC container (in our case, the NestJS runtime system), instead of doing it in your own code imperatively.
+
 ![Inversion of control principle](notesResources/Section5_3.png)
 
 > Bad way to write code according to inversion of control principle:
@@ -58,9 +61,18 @@ export class MessagesService {
 ![Why the 'Good' case is good](notesResources/Section5_4.png)
 
 Why the last case is actually good...
-<br>
+
 In the 'better' way to write code, we pass the 'MessagesRepository' itself as the dependency when initializing the class, but in case of 'best' way of writing the code, we just want the repository to have to conform to a specific interface. In this way, we can migrate to a different database if we wanted to, just by plugging in the repository of the new database that conforms to the interface. We can also write different code for the repository for testing and production environments.
 
+<br>
+
+![DI Container](notesResources/Section5_5.png)
+
+The DI container instantiates dependencies of each class for us and makes sure only one instance of the dependency is created and will use that instance for instantiating other classes, if required.
+
+![DI container flow](notesResources/Section5_6.png)
 ### References:
+* https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
+* https://docs.nestjs.com/fundamentals/custom-providers#di-fundamentals
 * https://medium.com/@kaushiksamanta23/nest-js-tutorial-series-part-3-providers-services-dependency-injection-a093f647ce2e
