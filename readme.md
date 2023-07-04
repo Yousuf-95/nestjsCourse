@@ -71,6 +71,15 @@ In the 'better' way to write code, we pass the 'MessagesRepository' itself as th
 The DI container instantiates dependencies of each class for us and makes sure only one instance of the dependency is created and will use that instance for instantiating other classes, if required.
 
 ![DI container flow](notesResources/Section5_6.png)
+
+## Section 6
+In this section, we create a small project to understand the concept of 'DI' (Dependency Injection) between modules.
+
+Project architecture:
+
+![Project diagram](notesResources/Section6_1.png)
+
+
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
