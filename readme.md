@@ -75,9 +75,13 @@ The DI container instantiates dependencies of each class for us and makes sure o
 ## Section 6
 In this section, we create a small project to understand the concept of 'DI' (Dependency Injection) between modules.
 
+This project imitates a computer with four different modules for each part of the computer.
+
+![Computer model](notesResources/Section6_1.png)
+
 Project architecture:
 
-![Project diagram](notesResources/Section6_1.png)
+![Project diagram](notesResources/Section6_2.png)
 
 
 ### References:
