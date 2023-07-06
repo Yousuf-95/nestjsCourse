@@ -64,7 +64,6 @@ Why the last case is actually good...
 
 In the 'better' way to write code, we pass the 'MessagesRepository' itself as the dependency when initializing the class, but in case of 'best' way of writing the code, we just want the repository to have to conform to a specific interface. In this way, we can migrate to a different database if we wanted to, just by plugging in the repository of the new database that conforms to the interface. We can also write different code for the repository for testing and production environments.
 
-<br>
 
 ![DI Container](notesResources/Section5_5.png)
 
@@ -82,6 +81,18 @@ This project imitates a computer with four different modules for each part of th
 Project architecture:
 
 ![Project diagram](notesResources/Section6_2.png)
+
+For this project, we need to share code between different modules as shown in image below:
+
+![Share code between modules](notesResources/Section6_3.png)
+
+Steps for sharing code inside of a module:
+
+![DI inside a module](notesResources/Section6_4.png)
+
+Steps for sharing code between modules:
+
+![DI between modules](notesResources/Section6_5.png)
 
 
 ### References:
