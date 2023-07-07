@@ -94,9 +94,28 @@ Steps for sharing code between modules:
 
 ![DI between modules](notesResources/Section6_5.png)
 
+## Section 7
+In this section, we will start with building an API that is used to report pricing of used cars.
+
+![API features](notesResources/Section7_1.png)
+
+API routes (More routes will be added in future):
+
+![API routes 1](notesResources/Section7_2.png)
+
+Modules, controllers, services and repositories for this project:
+
+![Modules, controllers, services and repositories](notesResources/Section7_3.png)
+
+## Section 8
+
+Nest provides tight integration with TypeORM and Sequelize out-of-the-box with the <code>@nestjs/typeorm</code> and <code>@nestjs/sequelize</code> packages respectively and Mongoose with <code>@nestjs/mongoose</code>. These integrations provide additional NestJS-specific features, such as model/repository injection, testability, and asynchronous configuration to make accessing the chosen database even easier.
+
+![TypeORM](notesResources/Section8_1.png)
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
 * https://docs.nestjs.com/fundamentals/custom-providers#di-fundamentals
 * https://medium.com/@kaushiksamanta23/nest-js-tutorial-series-part-3-providers-services-dependency-injection-a093f647ce2e
+* https://docs.nestjs.com/techniques/database
