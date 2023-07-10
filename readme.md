@@ -113,6 +113,34 @@ Nest provides tight integration with TypeORM and Sequelize out-of-the-box with t
 
 ![TypeORM](notesResources/Section8_1.png)
 
+Connection to the database will be made in App Module and will be shared across all the modules (users and reports module). Inside of each module (except App module), an entity file should be created. An entity defines a single resource to store in database (just like schema in Mongoose).
+
+![Database cennection diagram](notesResources/Section8_2.png)
+
+Setting up database connection in App module:
+
+```TS
+// app.module.ts
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'db.sqlite',
+      entities: [],
+      synchronize: true,
+    }),
+    UsersModule,
+    ReportsModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule { }
+
+```
+
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
