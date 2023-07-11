@@ -138,7 +138,70 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   providers: [AppService],
 })
 export class AppModule { }
+```
 
+Steps to create an entity:
+
+![Steps to create an entity](notesResources/Section8_3.png)
+
+Step 1: Create an entity file:
+```TS
+// users/user.entity.ts
+
+import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity()
+export class User {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    email: string;
+
+    @Column()
+    password: string;
+}
+```
+
+Step 2: Update the module the entity belongs to:
+```TS
+// users/users.module.ts
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './user.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([User])],
+  controllers: [UsersController],
+  providers: [UsersService]
+})
+export class UsersModule { }
+```
+
+Step 3: Update App module:
+```TS
+// app.module.ts
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/user.entity';
+import { Report } from './reports/report.entity';
+// import ...
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'db.sqlite',
+      entities: [User, Report],
+      synchronize: true,
+    }),
+    UsersModule,
+    ReportsModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule { }
 ```
 
 ### References:
