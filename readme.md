@@ -204,6 +204,12 @@ import { Report } from './reports/report.entity';
 export class AppModule { }
 ```
 
+Extra routes for the app:
+
+![Extra routes](notesResources/Section8_4.png)
+![Extra routes2](notesResources/Section8_5.png)
+
+
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
