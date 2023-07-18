@@ -209,6 +209,34 @@ Extra routes for the app:
 ![Extra routes](notesResources/Section8_4.png)
 ![Extra routes2](notesResources/Section8_5.png)
 
+## Section 9
+
+Current flow of the signup request:
+
+![signup request flow](notesResources/Section9_1.png)
+
+Difference between <code>create</code> and <code>save</code> methods in repository.
+
+|Create|Save|
+|------|----|
+|<code>Create</code> method creates an instance of an entity (just like in mongoose, an instance of a model is created with the <code>new</code> keyword). |<code>Save</code> method saves the data to the database |
+
+![create and save method](notesResources/Section9_2.png)
+
+Benefits of inserting data using <code>create</code> and <code>save</code> method instead of just passing an object directly to <code>save</code> method:
+```TS
+const user = this.repo.create({ email, password });
+this.repo.save(user);
+
+// VS
+
+this.repo.save({ email, password });
+```
+
+| Using create & save | Using save only |
+|-----------------|------|
+|In this method, we can use TypeORM's built-in hooks to perform operation after inserting data into database| In this method, we have to build all features from scratch |
+
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
