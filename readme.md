@@ -237,6 +237,11 @@ this.repo.save({ email, password });
 |-----------------|------|
 |In this method, we can use TypeORM's built-in hooks to perform operation after inserting data into database| In this method, we have to build all features from scratch |
 
+Handling exceptions:
+In this case, there is a users controller that communicates over HTTP with the client and throwing a <code>NotFoundException</code> from users service back to the controller will work because <code>NotFoundException</code> works only with HTTP protocol. If we have a controller that communicates over WebSocket or gRPC, then NotFoundException won't work. In this case, we will have to use exception filters for WebSocket or gRPC. Nest has <code>WsException</code> class for WebSocket protocol.
+
+![Exception handling](notesResources/Section9_3.png)
+
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
@@ -244,3 +249,4 @@ this.repo.save({ email, password });
 * https://docs.nestjs.com/fundamentals/custom-providers#di-fundamentals
 * https://medium.com/@kaushiksamanta23/nest-js-tutorial-series-part-3-providers-services-dependency-injection-a093f647ce2e
 * https://docs.nestjs.com/techniques/database
+* https://docs.nestjs.com/exception-filters
