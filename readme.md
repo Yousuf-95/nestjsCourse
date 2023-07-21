@@ -242,6 +242,38 @@ In this case, there is a users controller that communicates over HTTP with the c
 
 ![Exception handling](notesResources/Section9_3.png)
 
+## Section 10
+
+Excluding properties from response.
+In this case, we remove 'password' property from 'user' entity.
+
+Current request/response flow:
+![request response flow](notesResources/Section10_1.png)
+
+Method 1: Official method recommended by NestJS
+
+![first method for removing properties from entities](notesResources/Section10_2.png)
+
+Step 1: Add <code>Exclude</code> decorator to the property we want to exclude from the response
+```TS
+// user.entity.ts
+import { Exclude } from 'class-transformer';
+
+@Exclude()
+password: string;
+```
+
+Step 2: Add interceptors
+```TS
+// users.controller.ts
+import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/core'
+
+@UseInterceptors(ClassSerializerInterceptor)
+@Get('/auth/:id')
+async findUser(@Param('id') id: string)
+// ...
+```
+
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
