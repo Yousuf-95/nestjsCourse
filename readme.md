@@ -274,6 +274,14 @@ async findUser(@Param('id') id: string)
 // ...
 ```
 
+### Drawback of using the 1st (nest recommended) method for excluding properties from response:
+
+For example, we have two types of routes, one for admins and other is a public route for querying information of a user. We want admin users to view all information about a user and limit it for a normal user. With the first method discussed above, this is just not possible as we have added a decorator in the user entity file to remove some fields from the response which cannot be customised based on different routes. This drawback can be solved by using a custom interceptor and DTOs (Data Transfer Objects).
+
+![Different routes for admin and users](notesResources/Section10_3.png)
+
+![Custom interceptor solution](notesResources/Section10_4.png)
+
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
