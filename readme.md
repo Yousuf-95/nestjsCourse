@@ -248,6 +248,7 @@ Excluding properties from response.
 In this case, we remove 'password' property from 'user' entity.
 
 Current request/response flow:
+
 ![request response flow](notesResources/Section10_1.png)
 
 Method 1: Official method recommended by NestJS
@@ -281,6 +282,76 @@ For example, we have two types of routes, one for admins and other is a public r
 ![Different routes for admin and users](notesResources/Section10_3.png)
 
 ![Custom interceptor solution](notesResources/Section10_4.png)
+
+Step 1: Create a dto
+```TS
+// user.dto.ts
+import { Expose } from 'class-transformer'
+
+export class UserDto {
+    @Expose()
+    id: number;
+
+    @Expose()
+    email: string;
+}
+```
+
+Step 2: Create custom interceptor
+```TS
+// serialize.interceptor.ts
+import { UseInterceptors, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { plainToInstance } from 'class-transformer'
+
+interface ClassConstructor {
+    new (...args: any[]): object
+}
+
+export function Serialize(dto: ClassConstructor) {
+    return UseInterceptors(new SerializeInterceptor(dto));
+}
+
+export class SerializeInterceptor implements NestInterceptor {
+    private dto: any; 
+
+    constructor(dto: any) {
+        this.dto = dto
+    }
+
+    intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
+        // Run something before a request is handled by the request handler.
+
+        return next.handle().pipe(
+            map((data: any) => {
+                // Run something before response is sent out
+                const result =  plainToInstance(this.dto, data, {
+                    excludeExtraneousValues: true
+                });
+                return result;
+            })
+        )
+    }
+}
+```
+
+Step 3: Add the custom interceptor in controller file
+```TS
+// users.controller.ts
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { UserDto } from './dtos/user.dto';
+
+@Controller('auth')
+@Serialize(UserDto)
+export class UsersController {
+
+  @Post('/signup')
+  createUser(@Body() body: CreateUserDto) {
+      this.usersService.create(body.email, body.password);
+  }
+}
+```
 
 
 ### References:
