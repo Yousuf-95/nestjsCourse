@@ -251,7 +251,7 @@ Current request/response flow:
 
 ![request response flow](notesResources/Section10_1.png)
 
-Method 1: Official method recommended by NestJS
+### Method 1: Official method recommended by NestJS
 
 ![first method for removing properties from entities](notesResources/Section10_2.png)
 
@@ -281,7 +281,17 @@ For example, we have two types of routes, one for admins and other is a public r
 
 ![Different routes for admin and users](notesResources/Section10_3.png)
 
+### Method 2: Using custom interceptor
+
+![Interceptor diagram](notesResources/Section10_5.png)
+
+![Interceptor application](notesResources/Section10_7.png)
+
+![Custom interceptor class](notesResources/Section10_8.png)
+
 ![Custom interceptor solution](notesResources/Section10_4.png)
+
+![Close-up view of interceptor solution](notesResources/Section10_6.png)
 
 Step 1: Create a dto
 ```TS
