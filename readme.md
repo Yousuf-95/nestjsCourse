@@ -363,6 +363,19 @@ export class UsersController {
 }
 ```
 
+## Section 11
+
+In this section, we will be implementing authentication for our application. There are two ways we can do this:
+1. adding user authentication logic inside 'Users' service and 
+2. creating a new 'Auth' service that depends on 'Users' service.
+
+The drawback of first option is that, in future, we would want to add extra features like preferences, reset password and other features and all of this will be present in 'Users' service, making it a very large file. To prevent this, second option is preferred over first in large applications.
+
+![Option 1 to implement auth](notesResources/Section11_1.png)
+
+![Problem with option number 1](notesResources/Section11_3.png)
+
+![Option 2 to implement auth](notesResources/Section11_2.png)
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
