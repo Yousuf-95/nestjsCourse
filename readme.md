@@ -377,6 +377,10 @@ The drawback of first option is that, in future, we would want to add extra feat
 
 ![Option 2 to implement auth](notesResources/Section11_2.png)
 
+Hierarchy of classes in users module
+
+![Hierarchy of classes in users module](notesResources/Section11_4.png)
+
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
