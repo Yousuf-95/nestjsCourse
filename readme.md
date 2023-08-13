@@ -379,7 +379,29 @@ The drawback of first option is that, in future, we would want to add extra feat
 
 Hierarchy of classes in users module
 
+In the diagram below, Auth Service imports Users service to access Users repository.
 ![Hierarchy of classes in users module](notesResources/Section11_4.png)
+
+Signup flow diagram:
+
+![Signup flow diagram 1](notesResources/Section11_5.png)
+
+![Signup flow diagram 2](notesResources/Section11_6.png)
+
+Signin flow diagram:
+![Signin flow diagram](notesResources/Section11_7.png)
+
+
+Create a custom decorator
+```TS
+// src/users/decorators/current-user.decorator.ts
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
+
+export const CurrentUser = createParamDecorator((data: never, context: ExecutionContext) => {
+    const request = context.switchToHttp().getRequest();
+    return request.currentUser;
+});
+```
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
