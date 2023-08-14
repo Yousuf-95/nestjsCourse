@@ -392,7 +392,14 @@ Signin flow diagram:
 ![Signin flow diagram](notesResources/Section11_7.png)
 
 
-Create a custom decorator
+
+Common auth system features
+![Common auth system features](notesResources/Section11_8.png)
+
+
+Get signed in user with custom decorator and interceptor
+
+Step 1: Create a custom decorator:
 ```TS
 // src/users/decorators/current-user.decorator.ts
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
@@ -401,6 +408,28 @@ export const CurrentUser = createParamDecorator((data: never, context: Execution
     const request = context.switchToHttp().getRequest();
     return request.currentUser;
 });
+```
+
+Step 2: Create an interceptor
+```TS
+import { NestInterceptor, ExecutionContext, CallHandler, Injectable } from '@nestjs/common';
+import { UsersService } from '../users.service';
+
+@Injectable()
+export class CurrentUserInterceptor implements NestInterceptor {
+    constructor(private usersService: UsersService) { }
+
+    async intercept(context: ExecutionContext, next: CallHandler<any>) {
+        const request = context.switchToHttp().getRequest();
+        const { userId } = request.session || {};
+        if (userId) {
+            const user = await this.usersService.findOne(userId);
+            request.currentUser = user;
+        }
+
+        return next.handle();
+    }
+}
 ```
 
 ### References:
