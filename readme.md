@@ -377,29 +377,29 @@ The drawback of first option is that, in future, we would want to add extra feat
 
 ![Option 2 to implement auth](notesResources/Section11_2.png)
 
-Hierarchy of classes in users module
+### Hierarchy of classes in users module:
 
 In the diagram below, Auth Service imports Users service to access Users repository.
+
 ![Hierarchy of classes in users module](notesResources/Section11_4.png)
 
-Signup flow diagram:
+### Signup flow diagram:
 
 ![Signup flow diagram 1](notesResources/Section11_5.png)
 
 ![Signup flow diagram 2](notesResources/Section11_6.png)
 
-Signin flow diagram:
+### Signin flow diagram:
 ![Signin flow diagram](notesResources/Section11_7.png)
 
 
-
-Common auth system features
+### Common auth system features
 ![Common auth system features](notesResources/Section11_8.png)
 
 
-Get signed in user with custom decorator and interceptor
+### Get signed in user with custom decorator and interceptor
 
-Step 1: Create a custom decorator:
+**Step 1: Create a custom decorator:**
 ```TS
 // src/users/decorators/current-user.decorator.ts
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
@@ -410,7 +410,7 @@ export const CurrentUser = createParamDecorator((data: never, context: Execution
 });
 ```
 
-Step 2: Create an interceptor
+**Step 2: Create an interceptor**
 ```TS
 import { NestInterceptor, ExecutionContext, CallHandler, Injectable } from '@nestjs/common';
 import { UsersService } from '../users.service';
@@ -432,6 +432,103 @@ export class CurrentUserInterceptor implements NestInterceptor {
 }
 ```
 
+**Step 3: Connecting the interceptor**
+
+There are two ways to connect the interceptor:
+ 1. **Connecting the interceptor to a specific controller:** <br>
+    In this method, an interceptor can only intercept requests inside the current controller it is applied to. If we would like to use the interceptor in other controllers, we would have to import the interceptor in each of the controllers we wish to use it in and connect it to the controller. This can lead to code duplication and will make it harder to manage code. 
+
+    ![Connecting interceptor to a controller](notesResources/Section11_9.png)
+
+    **Steps to connect the interceptor to a controller:**
+
+    **Step 1: Add the interceptor to the providers list of users module**
+    ```TS
+    // users.module.ts
+    import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+
+    @Module({
+      ...,
+      providers: [..., CurrentUserInterceptor]
+    })
+    export class UsersModule { }
+    ```
+
+    **Step 2: Use the interceptor inside the controller**
+    ```TS
+    import { ..., UseInterceptors } from '@nestjs/common';
+    import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+
+    @UseInterceptors(CurrentUserInterceptor)
+    export class UsersController {
+      ...
+    }
+    ```
+
+ 2. **Connecting the interceptor globally:** <br>
+    In this method, the interceptor is used for the whole application, for each controller and route. One downside for this method is that the interceptor will perform its operation even if some of the controllers doesnot need its features.
+   
+    ![Connecting interceptor globally](notesResources/Section11_10.png)
+
+    To connect the interceptor globally, add the interceptor inside the providers list of users module using APP_INTERCEPTOR
+
+    ```TS
+    // users.module.ts
+    import { CurrentUserInterceptor } from './interceptors/current-user.interceptor';
+    import { APP_INTERCEPTOR } from '@nestjs/core';
+
+    @Module({
+      ...,
+      providers: [..., { provide: APP_INTERCEPTOR, useClass: CurrentUserInterceptor }]
+    });
+    export class UsersModule { }
+    ```
+
+### Authentication guards<br>
+Guards determine whether a given request will be handled by the route handler or not, depending on certain conditions (like permissions, roles, ACLs, etc.) present at run-time. A guard is a class annotated with the <code>@Injectable()</code> decorator, which implements the <code>CanActivate</code> interface. Every guard must implement a <code>canActivate()</code> function. This function should return a boolean, indicating whether the current request is allowed or not.
+
+A gaurd can be applied to different locations as required by the application: 
+
+![Guard usage](notesResources/Section11_11.png)
+
+Create an auth guard:
+```TS
+// src/guards/augth.guard.ts
+import { CanActivate, ExecutionContext } from '@nestjs/common';
+import { Observable } from 'rxjs';
+
+export class AuthGuard implements CanActivate {
+    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+        const request = context.switchToHttp().getRequest();
+
+        return request?.session?.userId;
+    }
+}
+```
+
+Use guard for a specific route in controller:
+```TS
+// src/users/users.controller.ts
+import { ... , UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/guards/auth.guard';
+
+export class UsersController {
+    ...
+
+    @Get('/whoami')
+    @UseGuards(AuthGuard)
+    whoAmI(@CurrentUser() user: User) {
+        return user;
+    }
+}
+```
+
+
+
+
+
+
+
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
@@ -439,3 +536,5 @@ export class CurrentUserInterceptor implements NestInterceptor {
 * https://medium.com/@kaushiksamanta23/nest-js-tutorial-series-part-3-providers-services-dependency-injection-a093f647ce2e
 * https://docs.nestjs.com/techniques/database
 * https://docs.nestjs.com/exception-filters
+* https://docs.nestjs.com/interceptors
+* https://docs.nestjs.com/guards
