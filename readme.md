@@ -523,6 +523,29 @@ export class UsersController {
 }
 ```
 
+## Section 12
+
+### Types of testing: 
+
+|Unit testing|Integration testing|
+|------------|-------------------|
+|Makes sure individual methos on a class are working correctly| Tests the full coverage of a feature|
+|Testing files have <code>.spec</code> of <code>.test</code> suffix| Testing files have <code>.e2e-spec</code> suffix|
+|Test files are placed near the classes they test| Test files are placed inside <code>test</code> directory|
+
+### Testing <code>AuthService</code> class
+
+To test AuthService class, we need to create an instance of this class to call methods inside it. Since AuthService class depends on UsersService class, we need its instance as well and since UsersService class depends on UsersRepository which in turn depends on SQLite and its configuration, we need to create all these dependencies which is time consuming. To overcome this, we create an instance of AuthService class by passing a fake UsersService class defined inside the test file that has only the methods we require while testing.
+
+![Dependency hell](notesResources/Section12_1.png)
+
+![Dependency hell solution](notesResources/Section12_2.png)
+
+When app runs normally, DI container has a mapping of all classes and their dependencies. During testing we will create a testing DI container that has AuthService and our fake UsersService class.
+
+![DI container in production](notesResources/Section12_4.png)
+
+![DI container when testing](notesResources/Section12_5.png)
 
 
 
