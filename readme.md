@@ -548,7 +548,33 @@ When app runs normally, DI container has a mapping of all classes and their depe
 ![DI container when testing](notesResources/Section12_5.png)
 
 
+Test file for AuthService class
+```TS
+import { Test } from "@nestjs/testing";
+import { AuthService } from "./auth.service";
+import { UsersService } from "./users.service";
+import { User } from "./user.entity";
 
+it('can create an instance of auth service', async () => {
+
+    const fakeUsersService: Partial<UsersService> = {
+        find: () => Promise.resolve([]),
+        create: (email: string, password: string) => Promise.resolve({id: 1, email, password} as User)
+    }
+
+    const module = await Test.createTestingModule({
+        providers: [AuthService, {provide: UsersService, useValue: fakeUsersService}]
+    }).compile();
+
+    const service = module.get(AuthService);
+
+    expect(service).toBeDefined();
+});
+```
+
+In the above code snippet, the providers array inside <code>createTestingModule</code>, has all the classes we want to register inside the DI container. Within providers array, we have AuthService and an object. The <code>provide</code> key inside the object means that if someone asks for a class mentioned against this key, give them the class mentioned against <code>useValue</code> key. In case above, the DI container will provide <code>fakeUsersService</code> whenever a class requires <code>UsersService</code>.
+
+![DI container example](notesResources/Section12_7.png);
 
 
 
@@ -561,3 +587,4 @@ When app runs normally, DI container has a mapping of all classes and their depe
 * https://docs.nestjs.com/exception-filters
 * https://docs.nestjs.com/interceptors
 * https://docs.nestjs.com/guards
+* https://docs.nestjs.com/fundamentals/testing
