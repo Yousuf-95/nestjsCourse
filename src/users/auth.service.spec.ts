@@ -9,10 +9,21 @@ describe('AuthService', () => {
     let fakeUsersService: Partial<UsersService>;
 
     beforeEach(async () => {
+
+        const users: User[] = [];
+
         // Create a fake copy of UsersService
         fakeUsersService = {
-            find: () => Promise.resolve([]),
-            create: (email: string, password: string) => Promise.resolve({ id: 1, email, password } as User)
+            find: (email: string) => {
+                const filteredUsers = users.filter(user => user.email === email);
+                return Promise.resolve(filteredUsers);
+
+            },
+            create: (email: string, password: string) => {
+                const user = {id: Math.floor(Math.random()) * 999, email, password} as User;
+                users.push(user);
+                return Promise.resolve(user);
+            },
         }
 
         const module = await Test.createTestingModule({
@@ -37,7 +48,7 @@ describe('AuthService', () => {
     })
 
     it('thorws an error if user signs up with email that is in use', async () => {
-        fakeUsersService.find = () => Promise.resolve([{ id: 1, email: 'abs@email.com', password: 'abcdefg' } as User]);
+        await service.signup('abc@email.com', 'abcdefg');
 
         await expect(service.signup('abc@email.com', 'abcdefg')).rejects.toThrow(BadRequestException);
     });
@@ -47,13 +58,13 @@ describe('AuthService', () => {
     });
 
     it('throws if an invalid password is provided', async () => {
-         fakeUsersService.find = () => Promise.resolve([{id: 1, email: 'abc@email.com', password: 'abcdefg.'} as User]);
+         await service.signup('abc@email.com', 'abcdefg');
 
-         await expect(service.signin('abc@email.com', '121')).rejects.toThrow(BadRequestException);
+         await expect(service.signin('abc@email.com', 'abcdef')).rejects.toThrow(BadRequestException);
     });
 
     it('returns a user if correct password is provided', async () => {
-        fakeUsersService.find = () => Promise.resolve([{id: 1, email: 'test4@email.com', password: 'b37e080dcda682b5.f9dce685a95608b5f4ba1d4691ba471002951b6d7ffe5af388aa659089096588'} as User]);
+        await service.signup('test4@email.com', 'testPassword');
 
         const user = await service.signin('test4@email.com', 'testPassword');
         expect(user).toBeDefined();
