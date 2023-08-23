@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { AuthService } from './auth.service';
 import { User } from './user.entity';
 import { NotFoundException } from '@nestjs/common'
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -15,7 +16,14 @@ describe('UsersController', () => {
     findOne: (id: number) => Promise.resolve({ id, email: 'abc@email.com', password: 'abcdefg' } as User),
     find: (email: string) => Promise.resolve([{ id: 1, email, password: 'abcdefg' } as User]),
     remove: (id: number) => Promise.resolve({ id, email: 'abc@email.com', password: 'abcdefg' } as User),
-    // update: () => {}
+    update: (id: number, body: UpdateUserDto) => {
+      const userObject = {
+        id,
+        ...body
+      }
+
+      return Promise.resolve(userObject as User)
+    }
   }
 
   // create a fake copy of AuthService
@@ -64,4 +72,13 @@ describe('UsersController', () => {
     expect(user.id).toEqual(1);
     expect(session.userId).toEqual(1);
   });
+
+  it('updateUser function updates a user', async () => {
+    const userDetailsToUpdate = {
+      email: 'wxyz@email.com'
+    }
+
+    const user = await controller.updateUser('1', userDetailsToUpdate as UpdateUserDto);
+    expect(user.email).toEqual('wxyz@email.com');
+  })
 });
