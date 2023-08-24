@@ -574,7 +574,13 @@ it('can create an instance of auth service', async () => {
 
 In the above code snippet, the providers array inside <code>createTestingModule</code>, has all the classes we want to register inside the DI container. Within providers array, we have AuthService and an object. The <code>provide</code> key inside the object means that if someone asks for a class mentioned against this key, give them the class mentioned against <code>useValue</code> key. In case above, the DI container will provide <code>fakeUsersService</code> whenever a class requires <code>UsersService</code>.
 
-![DI container example](notesResources/Section12_7.png);
+![DI container example](notesResources/Section12_7.png)
+
+## Section 13
+
+In an end-to-end test, entire workflow of the application is tested. End-to-end test mimics how software operates in real life by running common user scenarios and identifying any errors or malfunctions. In an end-to-end test, an entire instance of our nest app is created and listens to a random port on the computer and then makes request to this random port to test the feature. For every end-to-end test, a brand new test application is created, so if we have for example five tests, then five instances of the application will be created.
+
+![End to end test](notesResources/Section13_1.png)
 
 
 
