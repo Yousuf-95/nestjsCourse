@@ -583,6 +583,50 @@ In an end-to-end test, entire workflow of the application is tested. End-to-end 
 ![End to end test](notesResources/Section13_1.png)
 
 
+End-toend test file for users controller
+
+```TS
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from './../src/app.module';
+
+describe('Authentication System', () => {
+  let app: INestApplication;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  it('/auth/signup (POST)', () => {
+    const email = 'abc@email.com';
+
+    return request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email, password: 'abcdefg' })
+      .expect(201)
+      .then((res) => {
+        const {id, email} = res.body;
+        expect(id).toBeDefined();
+        expect(email).toEqual(email);
+      })
+  });
+});
+```
+
+During active development, both users module and reports module gets imported into the app module. App module is then imported into <code>main.ts</code> file and there we run a bootstrap funtion where we configure <code>cookie-session</code> middleware and validation pipe. 
+During testing, app module is imported and an instance of the application is initialized without configuring the middleware and validation pipe. This results in the above signup test to fail as there is no session object to assign userId to.
+
+![Initializing app during active development](notesResources/Section13_2.png)
+
+![Initializing app during end-to-end test](notesResources/Section13_3.png)
+
+
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
