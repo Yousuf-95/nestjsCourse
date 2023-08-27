@@ -620,11 +620,82 @@ describe('Authentication System', () => {
 ```
 
 During active development, both users module and reports module gets imported into the app module. App module is then imported into <code>main.ts</code> file and there we run a bootstrap funtion where we configure <code>cookie-session</code> middleware and validation pipe. 
-During testing, app module is imported and an instance of the application is initialized without configuring the middleware and validation pipe. This results in the above signup test to fail as there is no session object to assign userId to.
+During testing, app module is imported and an instance of the application is initialized without configuring the middleware and validation pipe. This results in the above signup test to fail as there is no session object to assign userId to. 
 
 ![Initializing app during active development](notesResources/Section13_2.png)
 
 ![Initializing app during end-to-end test](notesResources/Section13_3.png)
+
+To fix the error occuring the in test due to middleware and validation pipe configuration, we move its configuration from <code>main.ts</code> file to <code>app.module.ts</code> file.
+
+Step 1: Remove validation pipe and middleware configuration in main.ts file. The file should look like as shown in code block below:
+
+```TS
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+Step 2: Setup validation pipe in the provider list of app module decorator and middleware in the <code>AppModule</code> class.
+
+```TS
+// app.module.ts
+
+...
+@Module({
+  ...
+  providers: [
+       { 
+         provide: APP_PIPE,
+         useValue: new ValidationPipe({ whitelist: true })
+       }
+    ],
+  })
+
+
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(
+      cookieSession({
+        keys: ['cookieSession']
+      })
+    ).forRoutes('*');
+  }
+}
+```
+
+Error thrown if same test is run again.
+Running the <code>/auth/signup (POST)</code> test again will throw a <code>400 Bad Request</code> error because the first run of the test created an account with an email and this email is used again hence, an error is thrown. This can be solved by using two databases one for development and other for testing. The testing database will be wiped out before running each test preventing any data leak between the tests.
+
+![Create new instance of DB](notesResources/Section13_4.png)
+
+To create a new database instance, we just have to change a single string inside app module. This can be changed by simply using the ternary operator with environment variables. This is not the recommended way of handling environment variables by Nestjs.
+
+![TypeOrmModule property to change for database](notesResources/Section13_5.png)
+
+```TS
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: process.env.NODE_ENV === 'test' ? 'test.sqlite' : 'db.sqlite',
+      entities: [User, Report],
+      synchronize: true,
+    }),
+    ...
+  ],
+})
+```
+
+Nest recommended way of handling environment variables is by using a service (We'll call it Config service in this project).
+
+![Config service](notesResources/Section13_6.png)
 
 
 
