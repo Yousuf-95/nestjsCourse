@@ -693,10 +693,67 @@ To create a new database instance, we just have to change a single string inside
 })
 ```
 
-Nest recommended way of handling environment variables is by using a service (We'll call it Config service in this project).
+Nest recommended way of handling environment variables is by using nest module - <code>@nestjs/config</code>
 
 ![Config service](notesResources/Section13_6.png)
 
+```TS
+// src/app.module.ts
+...
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV}`
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          type: 'sqlite',
+          database: config.get<string>('DB_NAME'),
+          synchronize: true,
+          entities: [User, Report]
+        }
+      }
+    }),
+    ...
+  ],
+})
+```
+In the above code snippet, <code>ConfigModule</code> is used to specify which env file we want to read and <code>ConfigService</code> to read and expose information inside the file to the application.
+
+
+Deleting database in between tests:
+To delete sqlite database in between tests, we will make use of a global <code>beforeEach</code> function that runs before each test is executed.
+
+**Step 1: Configure jest option**
+```TS
+{
+  // test/jest-e2e.json
+  ...
+  "setupFilesAfterEnv": ["<rootDir>/setup.ts"]
+}
+```
+
+**Step 2: Write global <code>beforeEach</code> function to delete <code>test.sqlite</code> file**
+```TS
+// test/setup.ts
+
+import {rm} from 'fs/promises';
+import {join} from 'path';
+
+global.beforeEach(async () => {
+    try{
+        await rm(join( __dirname, '..', 'test.sqlite'));
+    }
+    catch(error) {
+        console.log("Error in deleting 'test.sqlite' file");
+    }
+});
+```
 
 
 ### References:
