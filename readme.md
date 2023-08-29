@@ -755,6 +755,20 @@ global.beforeEach(async () => {
 });
 ```
 
+#### 'SQLITE_BUSY: database is locked' error when running test
+Jest runs all e2e tests simultaneously and all tests try to create a connection to SQLite test database which SQLite doesnot allow and hence, an error occurs. It can be fixed by appending <code>--maxWorkers=1</code> in <code>test:e2e</code> script in <code>package.json</code> file.
+```TS
+// package.json
+
+{
+  "scripts": {
+    ...
+    "test:e2e": "cross-env NODE_ENV=test jest --config ./test/jest-e2e.json --maxWorkers=1"
+  }
+}
+
+```
+
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
