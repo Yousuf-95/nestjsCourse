@@ -769,6 +769,96 @@ Jest runs all e2e tests simultaneously and all tests try to create a connection 
 
 ```
 
+## Section 15
+
+### Association (Relations) in TypeORM
+
+In TypeORM, relationships exist between tables in the database. When one of the tables has a foreign key that references the primary key of the other table, a relationship exists. This feature enhances the power and efficiency with which relational databases store information.
+
+In general, relationships can be divided into four types.
+1. One-to-one relationship
+2. One-to-many relationship
+3. Many-to-one relationship
+4. Many-to-many relationship
+
+In this project, we need to create a relationship between a user and a report. Since a user can have multiple reports, it falls into one-to-many relationship category.
+
+![user - report relationship](notesResources/Section15_1.png)
+
+![user - report relationship 2](notesResources/Section15_2.png)
+
+![how it looks in database](notesResources/Section15_3.png)
+
+### Steps to create association (relations) with Nest and TypeORM
+
+![Steps to create relations with Nest and TypeORM](notesResources/Section15_4.png)
+
+**Step 1: Identify type of association to create**
+
+**Step 2: Add decorators to related entities**
+```TS
+// user.entity.ts
+import { ... , OneToMany } from "typeorm";
+import { Report } from "src/reports/report.entity";
+
+@Entity()
+export class User {
+    ...
+
+    @OneToMany(() => Report, (report) => report.user)
+    reports: Report[];
+}
+```
+
+```TS
+// report.entity.ts
+import { ManyToOne } from "typeorm";
+import { User } from "src/users/user.entity";
+
+@Entity()
+export class Report {
+    ...
+
+    @ManyToOne(() => User, (user) => user.reports)
+    user: User;
+}
+```
+
+![user - report relationship with decorators](notesResources/Section15_5.png)
+
+**Step 3: Associate user when a report is created**
+
+ - Extract user info from the incoming request:
+```TS
+// reports.controller.ts
+import { CurrentUser } from 'src/users/decorators/current-user.decorator';
+import { User } from 'src/users/user.entity';
+
+...
+export class ReportsController {
+    createReport(@Body() body: CreateReportDto, @CurrentUser() user: User) {
+        return this.reportsService.create(body, user);
+    }
+}
+```
+ - Assign the user to the report instance then save
+
+```TS
+// reports.service.ts
+import { User } from 'src/users/user.entity';
+
+export class ReportsService {
+    
+    create(reportDto: CreateReportDto, user: User) {
+        const report = this.repo.create(reportDto);
+        report.user = user;
+
+        return this.repo.save(report);
+    }
+}
+```
+
+
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
@@ -780,3 +870,4 @@ Jest runs all e2e tests simultaneously and all tests try to create a connection 
 * https://docs.nestjs.com/interceptors
 * https://docs.nestjs.com/guards
 * https://docs.nestjs.com/fundamentals/testing
+* https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
