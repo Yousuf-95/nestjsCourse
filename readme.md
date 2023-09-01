@@ -857,6 +857,60 @@ export class ReportsService {
     }
 }
 ```
+**Step 4: Limit info shared in response**
+
+The response received after creating a report with associated user now includes all user details including the password which we want to avoid. We will use a dto and serialize interceptor created earlier to solve this problem.
+- Create a dto
+```TS
+// reports/dtos/report.dto.ts
+import { Expose, Transform } from 'class-transformer'
+import { User } from 'src/users/user.entity';
+
+export class ReportDto {
+    @Expose()
+    id: number;
+
+    @Expose()
+    price: number;
+
+    @Expose()
+    year: number;
+
+    @Expose()
+    lng: number;
+
+    @Expose()
+    lat: number;
+
+    @Expose()
+    make: string;
+
+    @Expose()
+    model: string;
+
+    @Expose()
+    mileage: number;
+
+    @Transform(({ obj }) => obj.user.id)
+    @Expose()
+    userId: number;
+}
+```
+
+- Use <code>Serialize</code> interceptor in <code>ReportsController</code>
+```TS
+// reports.controller.dto
+import { ReportDto } from './dtos/report.dto';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+
+export class ReportsController {
+    ...
+    @Serialize(ReportDto)
+    createReport(@Body() body: CreateReportDto, @CurrentUser() user: User) {
+        ...
+    }
+}
+```
 
 
 
