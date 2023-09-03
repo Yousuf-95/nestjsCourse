@@ -693,7 +693,9 @@ To create a new database instance, we just have to change a single string inside
 })
 ```
 
-Nest recommended way of handling environment variables is by using nest module - <code>@nestjs/config</code>
+## Section 14
+
+#### Nest recommended way of handling environment variables is by using nest module - <code>@nestjs/config</code>
 
 ![Config service](notesResources/Section13_6.png)
 
@@ -726,7 +728,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 In the above code snippet, <code>ConfigModule</code> is used to specify which env file we want to read and <code>ConfigService</code> to read and expose information inside the file to the application.
 
 
-Deleting database in between tests:
+#### Deleting database in between tests:
 To delete sqlite database in between tests, we will make use of a global <code>beforeEach</code> function that runs before each test is executed.
 
 **Step 1: Configure jest option**
@@ -897,7 +899,7 @@ export class ReportDto {
 }
 ```
 
-- Use <code>Serialize</code> interceptor in <code>ReportsController</code>
+- Use <code>Serialize</code> interceptor and <code>ReportDto</code> in <code>ReportsController</code>
 ```TS
 // reports.controller.dto
 import { ReportDto } from './dtos/report.dto';
@@ -912,7 +914,122 @@ export class ReportsController {
 }
 ```
 
+## Section 16
 
+### Add authorization
+Add authorization to allow only administrators to approve a report.
+
+![AdminGuard Diagram](notesResources/Section16_1.png)
+
+**Steps to add authorization:**
+
+Step 1: Add <code>admin</code> property in user entity.
+```TS
+// users/user.entity.ts
+@Entity()
+export class User {
+    @Column({ default: true })
+    admin: boolean;
+    ...
+}
+```
+
+Step 2: Create <code>AdminGuard</code> interceptor
+```TS
+// admin.guard.ts
+import { CanActivate, ExecutionContext } from "@nestjs/common";
+
+export class AdminGuard implements CanActivate {
+    canActivate(context: ExecutionContext) {
+        const request = context.switchToHttp().getRequest();
+        if (!request.currentUser) {
+            return false;
+        }
+
+        return request.currentUser.admin;
+    }
+}
+```
+
+Step 3: Use <code>AdminGuard</code> in <code>ReportsController</code>
+```TS
+//  reports.controller.ts
+import { AdminGuard } from 'src/guards/admin.guard';
+
+export class ReportsController {
+    ...
+    @Patch('/:id')
+    @UseGuards(AdminGuard)
+    approveReport(@Param('id') id: string, @Body() body: ApproveReportDto) {
+        return this.reportsService.changeApproval(id, body.approved);
+    }
+}
+```
+
+Completing the above steps to add authorization will not work and will throw <code>403 - Forbidden resource</code> error. This is because <code>CurrentUser</code> interceptor which is responsible to get user details and assign it on request object executes after <code>AdminGuard</code> and as a result, <code>AdminGuard</code> doesnot find any user info in the request object and therefore a 403 error is thrown. To fix this, we will have to create a global middleware to extract user info from the request body.
+
+
+### Order of execution of middlewares, guards and interceptors:
+
+Order of execution is: **Middleware -> Guard > Interceptor**
+
+![Order of execution of middlewares, guards and interceptors](notesResources/Section16_2.png)
+
+![Solution to authorization problem](notesResources/Section16_3.png)
+
+### Steps to create a global <code>CurrentUser</code> middleware
+
+Step 1: Create <code>CurrentUserMiddleware</code>
+```TS
+// src/users/middlewares/current-user.middleware.ts
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import { UsersService } from '../users.service';
+import { User } from '../user.entity';
+
+declare global {
+    namespace Express {
+        interface Request {
+            currentUser?: User
+        }
+    }
+}
+
+@Injectable()
+export class CurrentUserMiddleware implements NestMiddleware {
+
+    constructor(private usersService: UsersService) { }
+
+    async use(req: Request, res: Response, next: NextFunction) {
+        const { userId } = req.session || {};
+
+        if (userId) {
+            const user = await this.usersService.findOne(userId);
+
+            req.currentUser = user;
+        }
+
+        next();
+    }
+}
+```
+
+Step 2: Use middleware in <code>UsersModule</code>
+```TS
+// src/users/users.module.ts
+import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { CurrentUserMiddleware } from './middlewares/current-user.middleware';
+
+@Module({
+  ...
+  providers: [UsersService, AuthService]
+})
+export class UsersModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CurrentUserMiddleware).forRoutes('*');
+  }
+}
+```
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
