@@ -1031,6 +1031,54 @@ export class UsersModule {
 }
 ```
 
+### Common error in query params
+
+All values received in 'query string' is received as string and therefore we may get validation errors if the dto has values marked as number. To solve this issue, we can transform values with <code>class-transformer</code> library.
+```TS
+// reports/dtos/get-estimate.dto.ts
+import { Transform } from 'class-transformer';
+
+export class GetEstimateDto {
+    @Transform(({ value }) => parseInt(value))
+    @IsNumber()
+    @Min(1930)
+    @Max(2050)
+    year: number;
+
+    @Transform(({ value }) => parseFloat(value))
+    @IsLongitude()
+    lng: number;
+}
+```
+
+## Section 17
+
+### Get estimate of a vehicle<code></code>
+
+Filter criteria for an estimate:
+
+![Filter criteria of estimate](notesResources/Section17_1.png)
+
+To get the estimate of a vehicle, we use <code>createQueryBuilder</code> method of reports repository to get the result.
+
+```TS
+// reports/reports.service.ts
+async createEstimate({ make, model, year, lat, lng, mileage }: GetEstimateDto) {
+    return this.repo.createQueryBuilder()
+        .select('AVG(price)', 'price')
+        .where('make = :make', { make })
+        .andWhere('model = :model', { model })
+        .andWhere('lng = :lng', { lng })
+        .andWhere('lat = :lat', { lat })
+        .andWhere('year = :year', { year })
+        .orderBy('ABS(mileage - :mileage)', 'DESC')
+        .setParameters({ mileage })
+        .limit(3)
+        .getRawOne();
+}
+```
+
+
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
