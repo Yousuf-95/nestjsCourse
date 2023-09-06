@@ -1078,6 +1078,30 @@ async createEstimate({ make, model, year, lat, lng, mileage }: GetEstimateDto) {
 }
 ```
 
+## Section 18
+
+This section will focus mainly on making changes to make this project production ready.
+
+![Changes to make in production code](notesResources/Section18_1.png)
+
+### Set <code>cookieSession</code> key using environment variable. 
+This key is used to encrypt cookies so it should not be set as a fixed string in the code (which will be pushed to Github, Gitlab etc).
+```TS
+// app.module.ts
+export class AppModule {
+  constructor(private configService: ConfigService) {}
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(
+      cookieSession({
+        keys: [this.configService.get('COOKIE_KEY')]
+      })
+    ).forRoutes('*');
+  }
+}
+```
+
+
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
