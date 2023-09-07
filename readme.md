@@ -1101,7 +1101,32 @@ export class AppModule {
 }
 ```
 
+### Set <code>synchronize</code> option of TypeORM to 'false'
+Synchronize makes the entity sync with the database every time the application is started. Hence, whenever a new column is added, deleted or a new table is added, TypeORM will automatically update the database once the server is started.
 
+![synchronize option](notesResources/Section18_2.png)
+
+```TS
+// app.module.ts
+  ...
+  TypeOrmModule.forRootAsync({
+    useFactory: (config: ConfigService) => {
+      return {
+        ...
+        synchronize: false,
+      }
+    }
+  }),
+```
+
+### Database migrations
+With database migrations, we can define a set of controlled changes that aim to modify the structure of the data. They can include adding or removing tables, changing columns, or changing the data types, for example. While we could manually run SQL queries that make the necessary adjustments, this is not the optimal approach. Instead, we want our migrations to be easy to repeat across different application environments.
+
+Migration is a file that contains two metohds - <code>up</code> and <code>down</code> The <code>up</code> method describes how to update the structure of the database while the <code>down</code> method describes how to undo the steps in <code>up</code> method. Multiple migration files can be run in a row.
+
+![Migration file & methods](notesResources/Section18_3.png)
+
+![Run migration files in row](notesResources/Section18_4.png)
 
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
@@ -1114,3 +1139,5 @@ export class AppModule {
 * https://docs.nestjs.com/guards
 * https://docs.nestjs.com/fundamentals/testing
 * https://dev.to/marienoir/understanding-relationships-in-typeorm-4873
+* https://medium.com/swlh/migrations-over-synchronize-in-typeorm-2c66bc008e74
+* https://wanago.io/2022/07/25/api-nestjs-database-migrations-typeorm/
