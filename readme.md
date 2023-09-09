@@ -1128,6 +1128,173 @@ Migration is a file that contains two metohds - <code>up</code> and <code>down</
 
 ![Run migration files in row](notesResources/Section18_4.png)
 
+### Move TypeORM configuration out of <code>AppModule</code>
+Moving TypeORM configuraiton out of <code>AppModule</code> is required so that TypeORM CLI can make use of the config file to generate and run migrations.
+
+- Step 1: Create <code>data-source.ts</code> file inside <code>src</code> folder
+  ```TS
+  import { DataSource, DataSourceOptions } from 'typeorm';
+
+  export const appDataSource = new DataSource({
+      type: 'sqlite',
+      database: 'db.sqlite',
+      entities: ["**/*.entity.ts"],
+      migrations: [__dirname + '/migrations/*.ts'],
+  } as DataSourceOptions);
+  ```
+
+- Step 2: Create <code>typeorm.config.ts</code> file inside <code>src/config</code> folder
+  ```TS
+  import { Injectable } from "@nestjs/common";
+  import { ConfigService } from "@nestjs/config";
+  import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
+
+  @Injectable()
+  export class TypeOrmConfigService implements TypeOrmOptionsFactory {
+    constructor(private configService: ConfigService) { }
+
+    createTypeOrmOptions(): TypeOrmModuleOptions | Promise<TypeOrmModuleOptions> {
+        if (process.env.NODE_ENV === 'test') {
+            return {
+                type: 'sqlite',
+                synchronize: true,
+                database: this.configService.get<string>('DB_NAME'),
+                autoLoadEntities: true,
+                migrationsRun: true,
+            };
+        }
+        else if (process.env.NODE_ENV === 'development') {
+            return {
+                type: 'sqlite',
+                synchronize: false,
+                database: this.configService.get<string>('DB_NAME'),
+                autoLoadEntities: true,
+                migrationsRun: false,
+            }
+        }
+        else if (process.env.NODE_ENV === 'production') {
+            return {
+                type: 'postgres',
+                url: process.env.DATABASE_RL,
+                migrationsRun: true,
+                entities: ['**/*.entity.js'],
+                ssl: {
+                    rejectUnauthorized: false
+                }
+            }
+        }
+    }
+  }
+  ```
+- Step 3: Use <code>TypeOrmConfigService</code> class created in step 2 inside <code>AppModule</code>
+  ```TS
+  // app.module.ts
+  const cookieSession = require('cookie-session');
+  import { TypeOrmConfigService } from './config/typeorm.config';
+
+  @Module({
+    imports: [
+      TypeOrmModule.forRootAsync({
+        useClass: TypeOrmConfigService
+      }),
+    ],
+  })
+  ```
+
+### Steps to create and run migrations
+Before following the steps below to create and run migrations, add a script in <code>package.json</code> file:
+```JS
+  "scripts": {
+    ...
+    "typeorm": "cross-env NODE_ENV=development typeorm-ts-node-commonjs"
+  }
+```
+
+![Steps to create migration](notesResources/Section18_5.png)
+
+- Step 1: Stop development server
+- Step 2: Create a migration file with TypeORM CLI. Use the command below:
+  ```bash
+  npm run typeorm migration:create ./src/migrations/initial-schema
+  ```
+- Step 3: Define changes in migration file. In the example below, we initialize the database by creating two tables required by <code>User</code> and <code>Report</code> entities
+  ```TS
+  import { MigrationInterface, QueryRunner, Table } from "typeorm"
+
+  export class InitialSchema1694174959151 implements MigrationInterface {
+
+      public async up(queryRunner: QueryRunner): Promise<void> {
+          await queryRunner.createTable(
+              new Table({
+                  name: 'user',
+                  columns: [
+                      {
+                          name: 'id',
+                          type: 'integer',
+                          isPrimary: true,
+                          isGenerated: true,
+                          generationStrategy: 'increment',
+                      },
+                      {
+                          name: 'email',
+                          type: 'varchar',
+                      },
+                      {
+                          name: 'password',
+                          type: 'varchar',
+                      },
+                      {
+                          name: 'admin',
+                          type: 'boolean',
+                          default: 'true',
+                      },
+                  ],
+              }),
+          );
+
+          await queryRunner.createTable(
+              new Table({
+                  name: 'report',
+                  columns: [
+                      {
+                          name: 'id',
+                          type: 'integer',
+                          isPrimary: true,
+                          isGenerated: true,
+                          generationStrategy: 'increment',
+                      },
+                      { name: 'approved', type: 'boolean', default: 'false' },
+                      { name: 'price', type: 'float' },
+                      { name: 'make', type: 'varchar' },
+                      { name: 'model', type: 'varchar' },
+                      { name: 'year', type: 'integer' },
+                      { name: 'lng', type: 'float' },
+                      { name: 'lat', type: 'float' },
+                      { name: 'mileage', type: 'integer' },
+                      { name: 'userId', type: 'integer' },
+                  ],
+              }),
+          );
+      }
+
+      public async down(queryRunner: QueryRunner): Promise<void> {
+          await queryRunner.query(`DROP TABLE ""report""`);
+          await queryRunner.query(`DROP TABLE ""user""`);
+      }
+  }
+  ```
+
+- Step 4: Run migration file with the following command:
+  ```bash
+  npm run typeorm migration:run -- -d ./src/data-source.ts
+  ```
+- Step 5: Restart development server
+
+**Note:** Allow JS files to run during tests by adding an option in <code>tsconfig.json</code>
+```bash
+"allowJs": true
+```
+
 ### References:
 * https://stackoverflow.com/questions/3058/what-is-inversion-of-control
 * https://betterprogramming.pub/implementing-a-generic-repository-pattern-using-nestjs-fb4db1b61cce
