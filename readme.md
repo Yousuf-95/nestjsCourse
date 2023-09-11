@@ -1,3 +1,25 @@
+|No.|Section|
+|---|-------|
+|1|Section 1: Getting started|
+|3|Section 2: The basics of Nest|
+|3|Section 3: Generating projects with Nest CLI|
+|4|Section 4: Validating request data with pipes|
+|5|Section 5: Nest Architecture: Services and repositories|
+|6|[Section 6: Nest Architecture: Organizing code with modules](#section-6)|
+|7|[Section 7: Big project (Car value estimate project)](#section-7)|
+|8|[Section 8: Persisting data with TypeORM](#section-8)|
+|9|[Section 9: Creating and saving user data](#section-9)|
+|10|[Section 10: Custom data serialization](#section-10)|
+|11|[Section 11: Authentication from scratch](#section-11)|
+|12|[Section 12: Getting started with unit testing](#section-12)|
+|13|[Section 13: Integration testing](#section-13)|
+|14|[Section 14: Managing app configuration](#section-14)|
+|15|[Section 15: Relations with TypeORM](#section-15)|
+|16|[Section 16: A basic permissions system](#section-16)|
+|17|[Section 17: Query builders with TypeORM](#section-17)|
+|18|[Section 18: Production deployment](#section-18)|
+|19|Section 19: [Bodnus] Appendix: TypeScript|
+
 # Services and Repositories
 <br/>
 
