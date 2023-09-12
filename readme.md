@@ -1,10 +1,10 @@
 |No.|Section|
 |---|-------|
 |1|Section 1: Getting started|
-|3|Section 2: The basics of Nest|
-|3|Section 3: Generating projects with Nest CLI|
-|4|Section 4: Validating request data with pipes|
-|5|Section 5: Nest Architecture: Services and repositories|
+|3|[Section 2: The basics of Nest](#section-2)|
+|3|[Section 3: Generating projects with Nest CLI](#section-3)|
+|4|[Section 4: Validating request data with pipes](#section-4)|
+|5|[Section 5: Nest Architecture: Services and repositories](#section-5)|
 |6|[Section 6: Nest Architecture: Organizing code with modules](#section-6)|
 |7|[Section 7: Big project (Car value estimate project)](#section-7)|
 |8|[Section 8: Persisting data with TypeORM](#section-8)|
@@ -20,25 +20,122 @@
 |18|[Section 18: Production deployment](#section-18)|
 |19|Section 19: [Bodnus] Appendix: TypeScript|
 
-# Services and Repositories
-<br/>
+## Section 2
+
+### NestJS dependencies:
+1. @nestjs/common<br>
+   Contains majority of functions, classes that we need from Nest
+
+2. @nestjs/platform-express<br>
+   Lets Nest use ExpressJS to handle HTTP request
+
+3. reflect-metadata<br>
+   Helps make decorators work.
+
+4. typescript<br>
+   Most Nest apps are written in TypeScript.
+
+### Parts of NestJS
+
+1. **Controllers:** Handles incoming requests.
+2. **Services:** Handles data access and business logic.
+3. **Modules:** Groups together code.
+4. **Pipes:** Validates incoming data.
+5. **Filters:** Handles errors that occurs during error handling.
+6. **Guards:** Handles authentication.
+7. **Interceptors:** Adds extra logic to incoming requests or outgoing responses.
+8. **Repositories:** Handles data stored in a DB.
+
+## Section 3
+### Some Nest CLI commands
+
+1. Create a new project     
+   ```bash
+   # create a new project with name: "projectName"
+   nest new projectName
+
+   # create a new project within the directory you are present in
+   nest new .
+   ```
+
+2. Create a new module
+   ```bash
+   # create a new module with the name - 'messages'
+   nest generate module messages
+   ```
+   The output of the above command will be a folder named 'messages' and a file within the folder with the name 'messages.module.ts'. This file will export a module named 'MessagesModule'.
+
+   <code>Tip:</code> Donot create a module with name <code>messagesModule</code> as nest cli will automatically append <code>modules</code> to the name given in the command.
+
+3. Create a new controller
+   ```bash
+   # create a new controller inside 'messages' folder with the name 'messages'.
+   # '--flat' is a flag used when we donot want to create extra folder, here it will be - 'controllers'  
+   nest generate controller messages/messages --flat
+   ```
+   <code>Tip:</code> Donot create a controller with name <code>messagesController</code> as nest cli will automatically append <code>controller</code> to the name given in the command.
+
+
+**General pattern of nest command:**
+```bash
+nest generate (type of class to generate) (folder name/name of file) (flags)
+```
+
+## Section 4
+
+### Setup validation in NestJS
+
+1. Tell nest to use global validation.
+   ```TS
+   // main.ts
+   const app = await NestFactory.create(MessagesModule);
+      app.useGlobalPipes(
+      new ValidationPipe()
+   );
+   ```
+2. Create a class that describes the different properties that the request body should have.
+   ```TS
+   // create-message.dto.ts
+   export class CreateMessageDto {
+      content: string;
+   }
+   ```
+3. Add validation rules to the class.
+   ```TS
+   // create-message.dto.ts
+   import { IsString } from 'class-validator';
+   
+   export class CreateMessageDto {
+      @IsString()
+      content: string;
+   }
+   ```
+4. Apply that class to the request handler.
+   ```TS
+   // messages.controller.ts
+   
+    @Post()
+    createMessage(@Body() body: CreateMessageDto) {
+        // perform request operations here...
+    }
+   ```
+
+## Section 5
+
+### Services and Repositories in Nestjs
 
 **Repositories:** Repositories are classes or components that encapsulate the logic required to access data sources. They centralize common data access functionality, providing better maintainability and decoupling the infrastructure or technology used to access databases from the domain model layer.
 
 **Services:** Services is a class that uses one or more repositories to find or store data. 
-<hr></hr>
 
-## Difference between services and repositories:
-<br/>
+### Difference between services and repositories:
 
 ![Difference between Services and Repositories](notesResources/Section5_1.png)
 
-## Service and repository class mapping (in general):
+### Service and repository class mapping (in general):
 ![Service and Repository class](notesResources/Section5_2.png)
 
-<hr></hr>
-
-## Inversion of Control principle and Dependency Injection (DI) Pattern:
+### Inversion of Control principle and Dependency Injection (DI) Pattern:
 The Inversion-of-Control (IoC) pattern, is about providing any kind of callback, which "implements" and/or controls reaction, instead of acting ourselves directly (in other words, inversion and/or redirecting control to the external handler/controller).<br>
 Dependency injection is an inversion of control (IoC) technique wherein you delegate instantiation of dependencies to the IoC container (in our case, the NestJS runtime system), instead of doing it in your own code imperatively.
 
@@ -139,7 +236,7 @@ Connection to the database will be made in App Module and will be shared across 
 
 ![Database cennection diagram](notesResources/Section8_2.png)
 
-Setting up database connection in App module:
+### Setting up database connection in App module:
 
 ```TS
 // app.module.ts
@@ -162,11 +259,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 export class AppModule { }
 ```
 
-Steps to create an entity:
+### Steps to create an entity:
 
 ![Steps to create an entity](notesResources/Section8_3.png)
 
-Step 1: Create an entity file:
+**Step 1: Create an entity file:**
 ```TS
 // users/user.entity.ts
 
@@ -185,7 +282,7 @@ export class User {
 }
 ```
 
-Step 2: Update the module the entity belongs to:
+**Step 2: Update the module the entity belongs to:**
 ```TS
 // users/users.module.ts
 
@@ -200,7 +297,7 @@ import { User } from './user.entity';
 export class UsersModule { }
 ```
 
-Step 3: Update App module:
+**Step 3: Update App module:**
 ```TS
 // app.module.ts
 
@@ -226,18 +323,18 @@ import { Report } from './reports/report.entity';
 export class AppModule { }
 ```
 
-Extra routes for the app:
+### Extra routes for the app:
 
 ![Extra routes](notesResources/Section8_4.png)
 ![Extra routes2](notesResources/Section8_5.png)
 
 ## Section 9
 
-Current flow of the signup request:
+### Current flow of the signup request:
 
 ![signup request flow](notesResources/Section9_1.png)
 
-Difference between <code>create</code> and <code>save</code> methods in repository.
+### Difference between <code>create</code> and <code>save</code> methods in repository.
 
 |Create|Save|
 |------|----|
@@ -245,7 +342,7 @@ Difference between <code>create</code> and <code>save</code> methods in reposito
 
 ![create and save method](notesResources/Section9_2.png)
 
-Benefits of inserting data using <code>create</code> and <code>save</code> method instead of just passing an object directly to <code>save</code> method:
+### Benefits of inserting data using <code>create</code> and <code>save</code> method instead of just passing an object directly to <code>save</code> method:
 ```TS
 const user = this.repo.create({ email, password });
 this.repo.save(user);
@@ -266,7 +363,8 @@ In this case, there is a users controller that communicates over HTTP with the c
 
 ## Section 10
 
-Excluding properties from response.
+### Excluding properties from response
+
 In this case, we remove 'password' property from 'user' entity.
 
 Current request/response flow:
@@ -277,7 +375,7 @@ Current request/response flow:
 
 ![first method for removing properties from entities](notesResources/Section10_2.png)
 
-Step 1: Add <code>Exclude</code> decorator to the property we want to exclude from the response
+**Step 1: Add <code>Exclude</code> decorator to the property we want to exclude from the response**
 ```TS
 // user.entity.ts
 import { Exclude } from 'class-transformer';
@@ -286,7 +384,7 @@ import { Exclude } from 'class-transformer';
 password: string;
 ```
 
-Step 2: Add interceptors
+**Step 2: Add interceptors**
 ```TS
 // users.controller.ts
 import { UseInterceptors, ClassSerializerInterceptor } from '@nestjs/core'
@@ -315,7 +413,7 @@ For example, we have two types of routes, one for admins and other is a public r
 
 ![Close-up view of interceptor solution](notesResources/Section10_6.png)
 
-Step 1: Create a dto
+**Step 1: Create a dto**
 ```TS
 // user.dto.ts
 import { Expose } from 'class-transformer'
@@ -329,7 +427,7 @@ export class UserDto {
 }
 ```
 
-Step 2: Create custom interceptor
+**Step 2: Create custom interceptor**
 ```TS
 // serialize.interceptor.ts
 import { UseInterceptors, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
@@ -368,7 +466,7 @@ export class SerializeInterceptor implements NestInterceptor {
 }
 ```
 
-Step 3: Add the custom interceptor in controller file
+**Step 3: Add the custom interceptor in controller file**
 ```TS
 // users.controller.ts
 import { Serialize } from 'src/interceptors/serialize.interceptor';
@@ -605,7 +703,7 @@ In an end-to-end test, entire workflow of the application is tested. End-to-end 
 ![End to end test](notesResources/Section13_1.png)
 
 
-End-toend test file for users controller
+End-to-end test file for users controller
 
 ```TS
 import { Test, TestingModule } from '@nestjs/testing';
@@ -650,7 +748,7 @@ During testing, app module is imported and an instance of the application is ini
 
 To fix the error occuring the in test due to middleware and validation pipe configuration, we move its configuration from <code>main.ts</code> file to <code>app.module.ts</code> file.
 
-Step 1: Remove validation pipe and middleware configuration in main.ts file. The file should look like as shown in code block below:
+**Step 1: Remove validation pipe and middleware configuration in main.ts file. The file should look like as shown in code block below:**
 
 ```TS
 // main.ts
@@ -664,7 +762,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-Step 2: Setup validation pipe in the provider list of app module decorator and middleware in the <code>AppModule</code> class.
+**Step 2: Setup validation pipe in the provider list of app module decorator and middleware in the <code>AppModule</code> class.**
 
 ```TS
 // app.module.ts
@@ -717,7 +815,7 @@ To create a new database instance, we just have to change a single string inside
 
 ## Section 14
 
-#### Nest recommended way of handling environment variables is by using nest module - <code>@nestjs/config</code>
+### Nest recommended way of handling environment variables is by using nest module - <code>@nestjs/config</code>
 
 ![Config service](notesResources/Section13_6.png)
 
@@ -1155,6 +1253,7 @@ Moving TypeORM configuraiton out of <code>AppModule</code> is required so that T
 
 - Step 1: Create <code>data-source.ts</code> file inside <code>src</code> folder
   ```TS
+  // src/data-source.ts
   import { DataSource, DataSourceOptions } from 'typeorm';
 
   export const appDataSource = new DataSource({
@@ -1167,6 +1266,7 @@ Moving TypeORM configuraiton out of <code>AppModule</code> is required so that T
 
 - Step 2: Create <code>typeorm.config.ts</code> file inside <code>src/config</code> folder
   ```TS
+  // src/config/typeorm.config.ts
   import { Injectable } from "@nestjs/common";
   import { ConfigService } from "@nestjs/config";
   import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
@@ -1224,7 +1324,7 @@ Moving TypeORM configuraiton out of <code>AppModule</code> is required so that T
   ```
 
 ### Steps to create and run migrations
-Before following the steps below to create and run migrations, add a script in <code>package.json</code> file:
+**Note:** Before following the steps below to create and run migrations, add a script in <code>package.json</code> file:
 ```JS
   "scripts": {
     ...
@@ -1234,12 +1334,13 @@ Before following the steps below to create and run migrations, add a script in <
 
 ![Steps to create migration](notesResources/Section18_5.png)
 
-- Step 1: Stop development server
-- Step 2: Create a migration file with TypeORM CLI. Use the command below:
+- **Step 1: Stop development server**
+- **Step 2: Create a migration file with TypeORM CLI. Use the command below:**
   ```bash
   npm run typeorm migration:create ./src/migrations/initial-schema
   ```
-- Step 3: Define changes in migration file. In the example below, we initialize the database by creating two tables required by <code>User</code> and <code>Report</code> entities
+- **Step 3: Define changes in migration file.**<br>
+  In the example below, we initialize the database by creating two tables required by <code>User</code> and <code>Report</code> entities
   ```TS
   import { MigrationInterface, QueryRunner, Table } from "typeorm"
 
@@ -1306,11 +1407,11 @@ Before following the steps below to create and run migrations, add a script in <
   }
   ```
 
-- Step 4: Run migration file with the following command:
+- **Step 4: Run migration file with the following command:**
   ```bash
   npm run typeorm migration:run -- -d ./src/data-source.ts
   ```
-- Step 5: Restart development server
+- **Step 5: Restart development server**
 
 **Note:** Allow JS files to run during tests by adding an option in <code>tsconfig.json</code>
 ```bash
